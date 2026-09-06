@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BASE_HEIGHT, BASE_WIDTH, DEPTH } from '../config/GameConfig';
+import { BASE_HEIGHT, DEPTH, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { ITEM_DEFS } from '../data/items';
 import { NO_ITEMS } from '../data/dialogue';
@@ -45,11 +45,11 @@ export class PauseScene extends Phaser.Scene {
     this.input$ = new InputController(this);
 
     this.add
-      .rectangle(0, 0, BASE_WIDTH, BASE_HEIGHT, Palette.black, 0.82)
+      .rectangle(0, 0, viewWidth(), BASE_HEIGHT, Palette.black, 0.82)
       .setOrigin(0, 0)
       .setDepth(DEPTH.overlay);
 
-    const panelX = (BASE_WIDTH - PANEL.width) / 2;
+    const panelX = (viewWidth() - PANEL.width) / 2;
     const panelY = (BASE_HEIGHT - PANEL.height) / 2;
 
     const panel = this.add.graphics().setDepth(DEPTH.ui - 1);
@@ -59,7 +59,7 @@ export class PauseScene extends Phaser.Scene {
     panel.fillRect(panelX, panelY, PANEL.width, PANEL.height);
 
     this.add
-      .text(BASE_WIDTH / 2, panelY + 26, 'PAUSA', {
+      .text(viewWidth() / 2, panelY + 26, 'PAUSA', {
         fontFamily: FONT_FAMILY,
         fontSize: '22px',
         color: css(Palette.violet),
@@ -71,7 +71,7 @@ export class PauseScene extends Phaser.Scene {
     this.bar.set(gameState.hp, gameState.maxHp);
 
     this.feedback = this.add
-      .text(BASE_WIDTH / 2, panelY + PANEL.height - 26, '', {
+      .text(viewWidth() / 2, panelY + PANEL.height - 26, '', {
         fontFamily: FONT_FAMILY,
         fontSize: '11px',
         color: css(Palette.grey),

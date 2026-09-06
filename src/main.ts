@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { createGameConfig } from './config/GameConfig';
+import { createGameConfig, measureViewWidth } from './config/GameConfig';
 import { BootScene } from './scenes/BootScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
@@ -37,6 +37,14 @@ const SCENES = [
 
 async function boot(): Promise<void> {
   if (detectTouch()) virtualInput.enable();
+
+  // El ancho de vista se decide una sola vez, antes de crear el juego. Se mide
+  // con el lado largo sobre el corto y no con el viewport tal cual: el juego es
+  // apaisado y la pagina puede cargar con el telefono en vertical.
+  measureViewWidth(
+    Math.max(window.innerWidth, window.innerHeight),
+    Math.min(window.innerWidth, window.innerHeight),
+  );
 
   try {
     await Promise.race([

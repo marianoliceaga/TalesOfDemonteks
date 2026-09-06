@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BASE_HEIGHT, BASE_WIDTH, BATTLE_BOX, DEPTH, IFRAMES_MS } from '../config/GameConfig';
+import { BASE_HEIGHT, BATTLE_BOX, DEPTH, IFRAMES_MS, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { BattleBox } from '../combat/BattleBox';
 import { BattleMenu, type BattleChoice } from '../combat/BattleMenu';
@@ -66,20 +66,20 @@ export class BattleScene extends Phaser.Scene {
     this.input$ = new InputController(this);
 
     this.add
-      .rectangle(0, 0, BASE_WIDTH, BASE_HEIGHT, Palette.black, 1)
+      .rectangle(0, 0, viewWidth(), BASE_HEIGHT, Palette.black, 1)
       .setOrigin(0, 0)
       .setDepth(DEPTH.overlay - 1);
 
     this.createEnemy();
     this.createBars();
 
-    this.box = new BattleBox(this, BASE_WIDTH / 2, 345, BATTLE_BOX.width, BATTLE_BOX.height);
+    this.box = new BattleBox(this, viewWidth() / 2, 345, BATTLE_BOX.width, BATTLE_BOX.height);
     this.box.setPlayerVisible(false);
 
-    this.timingBar = new TimingBar(this, BASE_WIDTH / 2 - 230, 328, { width: 460 });
+    this.timingBar = new TimingBar(this, viewWidth() / 2 - 230, 328, { width: 460 });
 
     this.dialogue = new DialogueBox(this, {
-      x: (BASE_WIDTH - BATTLE_BOX.width) / 2,
+      x: (viewWidth() - BATTLE_BOX.width) / 2,
       y: 262,
       width: BATTLE_BOX.width,
       height: 166,
@@ -87,14 +87,14 @@ export class BattleScene extends Phaser.Scene {
 
     this.menu = new BattleMenu(
       this,
-      BASE_WIDTH / 2 - 150,
+      viewWidth() / 2 - 150,
       BASE_HEIGHT - 44,
       (choice) => this.onChoice(choice),
       () => audio.play(this, 'uiMove'),
     );
 
     this.phaseLabel = this.add
-      .text(BASE_WIDTH / 2, 528, '', {
+      .text(viewWidth() / 2, 528, '', {
         fontFamily: FONT_FAMILY,
         fontSize: '12px',
         color: css(Palette.grey),
@@ -116,7 +116,7 @@ export class BattleScene extends Phaser.Scene {
 
   private createEnemy(): void {
     this.enemySprite = this.add
-      .sprite(BASE_WIDTH / 2, 108, enemyIdleTexture(this.def.id), 0)
+      .sprite(viewWidth() / 2, 108, enemyIdleTexture(this.def.id), 0)
       .setScale(this.def.battleScale)
       .setDepth(DEPTH.overlay);
     if (this.def.tint !== undefined) this.enemySprite.setTint(this.def.tint);
@@ -125,7 +125,7 @@ export class BattleScene extends Phaser.Scene {
     // Depth por encima de la caja de combate: la caja se dibuja despues y, con
     // la misma profundidad, taparia el nombre y la barra del enemigo.
     this.add
-      .text(BASE_WIDTH / 2, 176, this.def.name, {
+      .text(viewWidth() / 2, 176, this.def.name, {
         fontFamily: FONT_FAMILY,
         fontSize: '16px',
         color: css(Palette.white),
@@ -135,7 +135,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private createBars(): void {
-    this.enemyBar = new HealthBar(this, BASE_WIDTH / 2 - 110, 194, { width: 220, height: 12 });
+    this.enemyBar = new HealthBar(this, viewWidth() / 2 - 110, 194, { width: 220, height: 12 });
     this.enemyBar.setDepth(DEPTH.ui + 3);
     this.enemyBar.set(this.enemyHp, this.def.maxHp);
 
@@ -381,7 +381,7 @@ export class BattleScene extends Phaser.Scene {
       yoyo: true,
       repeat: 3,
       onComplete: () => {
-        this.enemySprite.x = BASE_WIDTH / 2;
+        this.enemySprite.x = viewWidth() / 2;
         // Devolver el tinte propio del enemigo, no dejarlo sin tinte.
         if (this.def.tint !== undefined) this.enemySprite.setTint(this.def.tint);
         else this.enemySprite.clearTint();

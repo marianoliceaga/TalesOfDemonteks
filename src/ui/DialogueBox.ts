@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BASE_HEIGHT, BASE_WIDTH, DEPTH } from '../config/GameConfig';
+import { BASE_HEIGHT, DEPTH, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { killTweens } from '../systems/tweens';
 
@@ -42,7 +42,7 @@ export class DialogueBox {
     this.scene = scene;
     this.charDelay = options.charDelay ?? 26;
 
-    const width = options.width ?? BASE_WIDTH - 80;
+    const width = options.width ?? viewWidth() - 80;
     const height = options.height ?? 150;
     const x = options.x ?? 40;
     const y = options.y ?? BASE_HEIGHT - height - 28;

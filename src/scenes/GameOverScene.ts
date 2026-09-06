@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { BASE_HEIGHT, BASE_WIDTH } from '../config/GameConfig';
+import { BASE_HEIGHT, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { GAME_OVER_LINES } from '../data/dialogue';
 import { audio } from '../systems/AudioSystem';
@@ -27,10 +27,10 @@ export class GameOverScene extends Phaser.Scene {
     this.input$ = new InputController(this);
     const save = SaveSystem.load();
 
-    this.add.rectangle(0, 0, BASE_WIDTH, BASE_HEIGHT, Palette.black, 1).setOrigin(0, 0);
+    this.add.rectangle(0, 0, viewWidth(), BASE_HEIGHT, Palette.black, 1).setOrigin(0, 0);
 
     this.add
-      .text(BASE_WIDTH / 2, 140, 'GAME OVER', {
+      .text(viewWidth() / 2, 140, 'GAME OVER', {
         fontFamily: FONT_FAMILY,
         fontSize: '46px',
         color: css(Palette.danger),
@@ -38,7 +38,7 @@ export class GameOverScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(BASE_WIDTH / 2, 214, Phaser.Utils.Array.GetRandom([...GAME_OVER_LINES]), {
+      .text(viewWidth() / 2, 214, Phaser.Utils.Array.GetRandom([...GAME_OVER_LINES]), {
         fontFamily: FONT_FAMILY,
         fontSize: '13px',
         color: css(Palette.white),
@@ -60,7 +60,7 @@ export class GameOverScene extends Phaser.Scene {
         { label: 'MENU PRINCIPAL' },
       ],
       {
-        x: BASE_WIDTH / 2 - 130,
+        x: viewWidth() / 2 - 130,
         y: 320,
         spacing: 88,
         fontSize: 20,

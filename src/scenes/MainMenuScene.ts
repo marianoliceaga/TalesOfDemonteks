@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { MISC } from '../config/AssetKeys';
-import { BASE_HEIGHT, BASE_WIDTH } from '../config/GameConfig';
+import { BASE_HEIGHT, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { STARTING_ITEMS } from '../data/items';
 import { audio } from '../systems/AudioSystem';
@@ -40,13 +40,13 @@ export class MainMenuScene extends Phaser.Scene {
     this.input$ = new InputController(this);
     audio.playMusic(this, 'main');
 
-    this.add
-      .image(BASE_WIDTH / 2, BASE_HEIGHT / 2, MISC.splash.key)
-      .setScale(6)
-      .setAlpha(0.16);
+    // El splash es de 128x128. Se escala para cubrir la vista completa: con un
+    // factor fijo se le veian los bordes en las pantallas mas anchas.
+    const splash = this.add.image(viewWidth() / 2, BASE_HEIGHT / 2, MISC.splash.key).setAlpha(0.16);
+    splash.setScale(Math.max(viewWidth() / splash.width, BASE_HEIGHT / splash.height));
 
     this.add
-      .text(BASE_WIDTH / 2, 108, 'TALES OF', {
+      .text(viewWidth() / 2, 108, 'TALES OF', {
         fontFamily: FONT_FAMILY,
         fontSize: '26px',
         color: css(Palette.grey),
@@ -54,7 +54,7 @@ export class MainMenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(BASE_WIDTH / 2, 156, 'DEMONTEKS', {
+      .text(viewWidth() / 2, 156, 'DEMONTEKS', {
         fontFamily: FONT_FAMILY,
         fontSize: '44px',
         color: css(Palette.violet),
@@ -75,7 +75,7 @@ export class MainMenuScene extends Phaser.Scene {
         },
       ],
       {
-        x: BASE_WIDTH / 2 - 120,
+        x: viewWidth() / 2 - 120,
         y: 300,
         spacing: 78,
         fontSize: 22,
@@ -86,7 +86,7 @@ export class MainMenuScene extends Phaser.Scene {
     );
 
     this.add
-      .text(BASE_WIDTH / 2, BASE_HEIGHT - 46, controlsHint(), {
+      .text(viewWidth() / 2, BASE_HEIGHT - 46, controlsHint(), {
         fontFamily: FONT_FAMILY,
         fontSize: '11px',
         color: css(Palette.grey),

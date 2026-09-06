@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { STORY } from '../config/AssetKeys';
-import { BASE_HEIGHT, BASE_WIDTH, DEPTH } from '../config/GameConfig';
+import { BASE_HEIGHT, DEPTH, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { ENDING_FOOTER, ENDING_LINES, ENDING_TITLE } from '../data/ending';
 import { ROOMS } from '../data/rooms';
@@ -43,7 +43,7 @@ export class EndingScene extends Phaser.Scene {
     this.input$ = new InputController(this);
     this.stage = 'lines';
 
-    this.add.rectangle(0, 0, BASE_WIDTH, BASE_HEIGHT, Palette.black, 1).setOrigin(0, 0);
+    this.add.rectangle(0, 0, viewWidth(), BASE_HEIGHT, Palette.black, 1).setOrigin(0, 0);
 
     this.sceneryGroup = this.add.group();
     this.createScenery();
@@ -59,15 +59,15 @@ export class EndingScene extends Phaser.Scene {
 
   private createScenery(): void {
     if (this.textures.exists(STORY.endingBg.key)) {
-      const bg = this.add.image(BASE_WIDTH / 2, BASE_HEIGHT / 2, STORY.endingBg.key);
+      const bg = this.add.image(viewWidth() / 2, BASE_HEIGHT / 2, STORY.endingBg.key);
       // Escalar para cubrir la pantalla completa sin deformar.
-      const scale = Math.max(BASE_WIDTH / bg.width, BASE_HEIGHT / bg.height);
+      const scale = Math.max(viewWidth() / bg.width, BASE_HEIGHT / bg.height);
       bg.setScale(scale).setAlpha(0.22).setTint(0x7f88ab);
       this.sceneryGroup.add(bg);
     }
 
     if (this.textures.exists(STORY.portraitExplorer.key)) {
-      const portrait = this.add.image(BASE_WIDTH / 2, 190, STORY.portraitExplorer.key);
+      const portrait = this.add.image(viewWidth() / 2, 190, STORY.portraitExplorer.key);
       portrait.setScale(320 / portrait.height);
       // El PNG viene sin alfa, con fondo negro. En modo ADD el negro no suma
       // nada, asi que el recorte sale gratis y de paso queda un halo.
@@ -108,7 +108,7 @@ export class EndingScene extends Phaser.Scene {
     });
 
     const title = this.add
-      .text(BASE_WIDTH / 2, 150, ENDING_TITLE, {
+      .text(viewWidth() / 2, 150, ENDING_TITLE, {
         fontFamily: FONT_FAMILY,
         fontSize: '52px',
         color: css(Palette.violet),
@@ -126,7 +126,7 @@ export class EndingScene extends Phaser.Scene {
     ].join('\n');
 
     const statsText = this.add
-      .text(BASE_WIDTH / 2, 250, stats, {
+      .text(viewWidth() / 2, 250, stats, {
         fontFamily: FONT_FAMILY,
         fontSize: '14px',
         color: css(Palette.white),
@@ -140,12 +140,12 @@ export class EndingScene extends Phaser.Scene {
       .setDepth(DEPTH.ui);
 
     const footer = this.add
-      .text(BASE_WIDTH / 2, BASE_HEIGHT - 40, ENDING_FOOTER, {
+      .text(viewWidth() / 2, BASE_HEIGHT - 40, ENDING_FOOTER, {
         fontFamily: FONT_FAMILY,
         fontSize: '10px',
         color: css(Palette.grey),
         align: 'center',
-        wordWrap: { width: BASE_WIDTH - 120 },
+        wordWrap: { width: viewWidth() - 120 },
         lineSpacing: 6,
       })
       .setOrigin(0.5)
@@ -153,7 +153,7 @@ export class EndingScene extends Phaser.Scene {
       .setDepth(DEPTH.ui);
 
     this.menu = new Menu(this, [{ label: 'MENU PRINCIPAL' }], {
-      x: BASE_WIDTH / 2 - 90,
+      x: viewWidth() / 2 - 90,
       y: 420,
       fontSize: 18,
       onSelect: () => this.toMainMenu(),
