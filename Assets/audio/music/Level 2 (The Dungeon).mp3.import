@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c86x8h5ytaqef"
+path="res://.godot/imported/Level 2 (The Dungeon).mp3-ebe8fbd3df9fd970476e9340a9cfe81c.mp3str"
+
+[deps]
+
+source_file="res://Assets/audio/music/Level 2 (The Dungeon).mp3"
+dest_files=["res://.godot/imported/Level 2 (The Dungeon).mp3-ebe8fbd3df9fd970476e9340a9cfe81c.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

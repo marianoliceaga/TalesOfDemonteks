@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vite/
+*.local
+
+# Generado por scripts/sync-assets.mjs a partir de Assets/. No versionar.
+public/assets/
