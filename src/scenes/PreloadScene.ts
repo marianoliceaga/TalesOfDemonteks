@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DECOR, ITEMS, TILESETS, TOUCH } from '../config/AssetKeys';
-import { BASE_HEIGHT, BASE_WIDTH } from '../config/GameConfig';
+import { BASE_HEIGHT, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { loadCharacterSheets, registerAnimations } from '../systems/AnimationFactory';
 import { audio } from '../systems/AudioSystem';
@@ -51,7 +51,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   private showProgress(): void {
-    const cx = BASE_WIDTH / 2;
+    const cx = viewWidth() / 2;
     const cy = BASE_HEIGHT / 2;
 
     this.add

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { TOUCH } from '../config/AssetKeys';
-import { BASE_HEIGHT, BASE_WIDTH } from '../config/GameConfig';
+import { BASE_HEIGHT, viewWidth } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { virtualInput } from '../systems/VirtualInput';
 
@@ -30,10 +30,29 @@ const DEAD_ZONE = 16;
 
 /** Botones chicos de la esquina, en una zona que ninguna escena usa. */
 const CORNER_SIZE = 60;
-const PAUSE_POS = { x: BASE_WIDTH - 46, y: 44 };
-const CANCEL_POS = { x: BASE_WIDTH - 116, y: 44 };
-/** Pista de "aca se toca para accionar": fuera de la caja de dialogo y de la de combate. */
-const ACTION_HINT_POS = { x: BASE_WIDTH - 52, y: 300 };
+
+interface Spot {
+  x: number;
+  y: number;
+}
+
+/**
+ * Posiciones de los botones, ancladas al borde derecho.
+ *
+ * Se calculan en `create()` y no a nivel de modulo porque el ancho de vista se
+ * decide al arrancar: una constante de modulo se evaluaria al importar, cuando
+ * `viewWidth()` todavia devuelve el ancho de diseno.
+ */
+function cornerSpots(): { pause: Spot; cancel: Spot; actionHint: Spot } {
+  const right = viewWidth();
+  return {
+    pause: { x: right - 46, y: 44 },
+    cancel: { x: right - 116, y: 44 },
+    // Pista de "aca se toca para accionar": fuera de la caja de dialogo y de la
+    // de combate.
+    actionHint: { x: right - 52, y: 300 },
+  };
+}
 
 const IDLE_ALPHA = 0.42;
 
@@ -48,15 +67,19 @@ export class TouchScene extends Phaser.Scene {
   private stickPointer: number | null = null;
   private stickOrigin = new Phaser.Math.Vector2();
 
+  private spots = cornerSpots();
+
   constructor() {
     super('Touch');
   }
 
   create(): void {
+    this.spots = cornerSpots();
+
     this.buildStick();
-    this.actionHint = this.buildButton(ACTION_HINT_POS, TOUCH.action.key, 'A');
-    this.pauseButton = this.buildButton(PAUSE_POS, TOUCH.pause.key, 'II');
-    this.cancelButton = this.buildButton(CANCEL_POS, null, '<');
+    this.actionHint = this.buildButton(this.spots.actionHint, TOUCH.action.key, 'A');
+    this.pauseButton = this.buildButton(this.spots.pause, TOUCH.pause.key, 'II');
+    this.cancelButton = this.buildButton(this.spots.cancel, null, '<');
 
     this.input.on(Phaser.Input.Events.POINTER_DOWN, this.onDown, this);
     this.input.on(Phaser.Input.Events.POINTER_MOVE, this.onMove, this);
@@ -86,7 +109,7 @@ export class TouchScene extends Phaser.Scene {
    * circulo con una letra cuando no (no hay PNG para "volver").
    */
   private buildButton(
-    pos: { x: number; y: number },
+    pos: Spot,
     textureKey: string | null,
     glyph: string,
   ): Phaser.GameObjects.Container {
@@ -116,18 +139,18 @@ export class TouchScene extends Phaser.Scene {
   /* ------------------------------- punteros ------------------------------ */
 
   private onDown(pointer: Phaser.Input.Pointer): void {
-    if (this.hits(PAUSE_POS, pointer)) {
+    if (this.hits(this.spots.pause, pointer)) {
       virtualInput.press('pause');
       this.flash(this.pauseButton);
       return;
     }
-    if (this.hits(CANCEL_POS, pointer)) {
+    if (this.hits(this.spots.cancel, pointer)) {
       virtualInput.press('cancel');
       this.flash(this.cancelButton);
       return;
     }
 
-    if (pointer.x > BASE_WIDTH / 2) {
+    if (pointer.x > viewWidth() / 2) {
       virtualInput.press('action');
       this.flash(this.actionHint);
       return;
@@ -137,7 +160,7 @@ export class TouchScene extends Phaser.Scene {
     if (this.stickPointer !== null) return;
     this.stickPointer = pointer.id;
     this.stickOrigin.set(
-      Phaser.Math.Clamp(pointer.x, STICK_RADIUS + 8, BASE_WIDTH / 2 - 8),
+      Phaser.Math.Clamp(pointer.x, STICK_RADIUS + 8, viewWidth() / 2 - 8),
       Phaser.Math.Clamp(pointer.y, STICK_RADIUS + 8, BASE_HEIGHT - STICK_RADIUS - 8),
     );
     this.ring.setPosition(this.stickOrigin.x, this.stickOrigin.y).setVisible(true);
@@ -180,7 +203,7 @@ export class TouchScene extends Phaser.Scene {
     virtualInput.setAxis(nx, ny);
   }
 
-  private hits(pos: { x: number; y: number }, pointer: Phaser.Input.Pointer): boolean {
+  private hits(pos: Spot, pointer: Phaser.Input.Pointer): boolean {
     const half = CORNER_SIZE / 2 + 10; // margen extra: el dedo no es un pixel
     return Math.abs(pointer.x - pos.x) <= half && Math.abs(pointer.y - pos.y) <= half;
   }

@@ -147,7 +147,8 @@ decena de SFX; `sync-assets.mjs` los renombra a nombres sin espacios.
 Los sprites son de 128px y los tiles de 16px: hay un salto de 8×. La opción elegida
 (`src/config/GameConfig.ts`) es **tiles ×4, personajes al 100%**:
 
-- resolución base **960×540**, `Phaser.Scale.FIT` + `autoCenter`, `pixelArt: true`, `roundPixels: true`
+- alto de vista fijo en **540**, ancho adaptado a la pantalla (ver abajo), `Phaser.Scale.FIT` +
+  `autoCenter`, `pixelArt: true`, `roundPixels: true`
 - el tileset de 16px se re-escala a **64px** por vecino más cercano (entero, nítido)
 - los personajes se dibujan a **128px nativos** → 2 tiles de alto
 
@@ -155,11 +156,47 @@ Todo queda en múltiplos enteros: cero resampleo, cero blur. Para probar la alte
 "tiles ×2 / personajes al 50%" alcanza con cambiar cuatro constantes en `GameConfig.ts`:
 
 ```ts
-export const BASE_WIDTH = 480;
+export const DESIGN_WIDTH = 480;
 export const BASE_HEIGHT = 270;
 export const TILE_UPSCALE = 2;
 export const CHAR_SCALE = 0.5;
 ```
+
+### Ancho adaptativo
+
+El alto es fijo —540 px son exactamente las 13 filas de tiles de 64— pero el **ancho se decide al
+arrancar**, según la forma de la pantalla:
+
+```
+ancho = clamp(540 × (lado largo / lado corto), 960, 1280)   // redondeado a múltiplo de 4
+```
+
+Los teléfonos actuales son mucho más anchos que 16:9: el iPhone 12 y posteriores rondan 2.16 y un
+Android de 720×1600 llega a 2.22. Con un ancho fijo de 960 quedaba **casi un quinto de la pantalla
+en barras negras**. En vez de estirar la imagen —que arruinaría el pixel art— se muestra más mundo a
+los costados:
+
+| Pantalla (apaisada) | Antes | Ahora |
+| --- | --- | --- |
+| iPhone 12/13/14 · 844×390 | 693×390, 151 px de barras | **845×390, sin barras** |
+| Android 720×1600 · 800×360 | 640×360, 160 px de barras | **800×360, sin barras** |
+| Escritorio 16:9 | sin barras | sin cambios (960×540) |
+
+Los dos extremos del `clamp` no son arbitrarios:
+
+- **960** es el ancho de diseño 16:9. Es el mínimo: en una pantalla más angosta se letterboxea, pero
+  nunca se muestra menos mundo del previsto.
+- **1280** es el ancho exacto de las salas (20 celdas × 64 px). Pasarse de ahí dejaría a la cámara
+  con bounds más angostos que su propia vista.
+
+La medición usa el **lado largo sobre el corto**, no el viewport tal cual: el juego es apaisado y la
+página puede cargar con el teléfono en vertical, así que al girarlo el canvas ya tiene la forma
+correcta.
+
+El ancho se lee con `viewWidth()`, no con una constante. **Es una función a propósito**: se resuelve
+al arrancar, así que leerlo a nivel de módulo devolvería el ancho de diseño. Siempre dentro de
+`create()` o del constructor. Se decide una sola vez por carga: redimensionar la ventana de la
+computadora no lo recalcula, `Scale.FIT` se encarga del resto.
 
 Dentro de la caja de combate el Explorer se dibuja al 50% (`PLAYER_BATTLE_SCALE`): a 128px no queda
 lugar para esquivar nada.
@@ -324,8 +361,9 @@ cierra.
 
 ## Celular y controles táctiles
 
-El juego se juega en el navegador del celular, **apaisado**. En vertical la resolución base de
-960×540 entra como una franja de un cuarto de pantalla, así que en esa orientación se muestra un
+El juego se juega en el navegador del celular, **apaisado**, y ocupa la pantalla completa: el ancho
+de vista se adapta a la forma del dispositivo (ver *Ancho adaptativo* más arriba). En vertical el
+juego entraría como una franja de un cuarto de pantalla, así que en esa orientación se muestra un
 cartel pidiendo girar el teléfono (CSS puro en `index.html`, sin JavaScript).
 
 Esquema de control, en `src/scenes/TouchScene.ts`:
