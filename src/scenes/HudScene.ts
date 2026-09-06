@@ -2,7 +2,13 @@ import Phaser from 'phaser';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { getRoom } from '../data/rooms';
 import { gameState } from '../systems/GameState';
+import { virtualInput } from '../systems/VirtualInput';
 import { HealthBar } from '../ui/HealthBar';
+
+/** Ver el comentario de `controlsHint()` en MainMenuScene: no puede ser constante. */
+function pauseHint(): string {
+  return virtualInput.enabled ? 'pausa: boton II' : '[ESC] pausa';
+}
 
 /**
  * HUD de exploracion: HP y nombre de la sala.
@@ -50,6 +56,6 @@ export class HudScene extends Phaser.Scene {
 
     this.bar.set(gameState.hp, gameState.maxHp);
     this.roomLabel.setText(getRoom(gameState.currentRoom).name);
-    this.itemsLabel.setText(`KITS: ${gameState.totalItems}   [ESC] pausa`);
+    this.itemsLabel.setText(`KITS: ${gameState.totalItems}   ${pauseHint()}`);
   }
 }

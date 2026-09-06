@@ -2,7 +2,17 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      En celular el juego se comporta como app, no como pagina: sin zoom por
+      pinza ni por doble toque (arruinaria el joystick) y dibujando por debajo
+      del notch con viewport-fit=cover.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Tales of Demonteks</title>
 
     <!--
@@ -27,13 +37,70 @@
         align-items: center;
         justify-content: center;
         font-family: 'Press Start 2P', monospace;
+        /* Que un arrastre mueva al personaje y no la pagina. */
+        touch-action: none;
+        overscroll-behavior: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
       #game { line-height: 0; }
-      canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+      canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        touch-action: none;
+      }
+
+      /*
+        El juego es de 960x540: en un celular vertical entra como una franja de
+        un cuarto de pantalla, ilegible. Se pide girar el telefono en vez de
+        intentar acomodar una UI apaisada en vertical.
+
+        Solo con `pointer: coarse`: una ventana angosta en la compu no molesta.
+      */
+      #rotate { display: none; }
+
+      @media (orientation: portrait) and (pointer: coarse) {
+        #game { visibility: hidden; }
+        #rotate {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 22px;
+          padding: 32px;
+          box-sizing: border-box;
+          text-align: center;
+          color: #f4f4ee;
+          background: #0b0b10;
+        }
+        #rotate .phone {
+          width: 54px;
+          height: 92px;
+          border: 4px solid #8a4fff;
+          border-radius: 8px;
+          animation: tilt 1.8s ease-in-out infinite;
+        }
+        #rotate p { margin: 0; font-size: 13px; line-height: 1.9; }
+        #rotate .small { font-size: 10px; color: #6e6a7a; }
+      }
+
+      @keyframes tilt {
+        0%, 45% { transform: rotate(0deg); }
+        70%, 100% { transform: rotate(-90deg); }
+      }
     </style>
   </head>
   <body>
     <div id="game"></div>
+
+    <div id="rotate">
+      <div class="phone"></div>
+      <p>Gira el telefono</p>
+      <p class="small">Tales of Demonteks se juega apaisado.</p>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -76,6 +76,7 @@ src/
     PauseScene.ts           inventario (kits), opciones de audio y volver al menú principal
     GameOverScene.ts        reintentar desde el último guardado
     EndingScene.ts          final del juego: cierre + THE END + resumen de la partida
+    TouchScene.ts           controles tactiles en celular (joystick flotante + botones)
   systems/
     GameState.ts            estado en memoria (HP, inventario, enemigos derrotados, sala)
     SaveSystem.ts           persistencia en localStorage
@@ -83,7 +84,8 @@ src/
     AudioSystem.ts          música por sala (carga bajo demanda), SFX y mute independiente
     WangRoomBuilder.ts      arma la geometría de la sala desde el layout ASCII
     TextureUtils.ts         re-escalado de tilesets y texturas procedurales
-    InputController.ts      mapa de teclas único para todas las escenas
+    InputController.ts      teclado + táctil unificados, único para todas las escenas
+    VirtualInput.ts         estado del control táctil que TouchScene escribe y InputController lee
     tweens.ts               cancelación de tweens segura durante el shutdown
   ui/
     DialogueBox.ts          caja blanca con borde negro, typewriter, triángulo parpadeante
@@ -255,6 +257,11 @@ un punto de partida para editar en Tiled, no un reemplazo del renderer wang.
 - **Pantalla de final**: al derrotar al Rey, cierre narrativo sobre el arte de `Assets/story/`,
   tarjeta de THE END con resumen de la partida (salas, enemigos, HP, kits) y vuelta al menú.
 - Audio: música por bioma (carga bajo demanda), SFX de UI, golpe, daño, curación y guardado.
+- **Controles táctiles** en celular, verificados sobre un viewport móvil emulado: joystick
+  flotante en la mitad izquierda, toque en la derecha para accionar y botones de pausa y volver.
+  Probado de punta a punta — confirmar START, avanzar diálogos, caminar y frenar, chocar con un
+  enemigo, abrir la pausa, navegar los menús con el stick, pegar en la barra de FIGHT
+  (`IMPACTO`, 16 de daño) y esquivar dentro de la caja.
 - Carga de **mapas de Tiled** (`RoomDef.tiledMap`), verificada con `public/maps/example_room.json`:
   renderiza, escala y colisiona bien. Por defecto ninguna sala la usa — las 6 van con el renderer
   wang, que se ve mejor.
@@ -312,6 +319,53 @@ el id en `PatternId` (`src/types/index.ts`), y registrarlo en el mapa `PATTERNS`
 "anillo" pegado a la pared (columna 1, columna `ancho-2`, fila 1, fila `alto-2`), así podés poner
 puertas y puntos de guardado contra el borde sin sorpresas. `validateRooms()` te avisa si algo no
 cierra.
+
+---
+
+## Celular y controles táctiles
+
+El juego se juega en el navegador del celular, **apaisado**. En vertical la resolución base de
+960×540 entra como una franja de un cuarto de pantalla, así que en esa orientación se muestra un
+cartel pidiendo girar el teléfono (CSS puro en `index.html`, sin JavaScript).
+
+Esquema de control, en `src/scenes/TouchScene.ts`:
+
+| Zona | Acción |
+| --- | --- |
+| Mitad izquierda | Joystick flotante: aparece donde apoyás el pulgar |
+| Mitad derecha | Acción: interactuar, confirmar, avanzar diálogo, golpear en la barra de FIGHT |
+| Arriba a la derecha | Pausa (`II`) y volver (`<`) |
+
+El joystick es **flotante y no una cruceta fija** a propósito: la caja de diálogo ocupa toda la
+franja de abajo y la de combate el centro, así que no queda lugar libre para controles permanentes.
+Flotante no ocupa nada mientras no lo usás y aparece siempre bajo el dedo.
+
+Inclinar el stick también navega menús: entrar en una dirección cuenta como una pulsación, así que
+sirve igual para caminar que para moverse entre FIGHT y ACT.
+
+### Cómo se enchufa
+
+Ninguna escena sabe que existe el táctil. `TouchScene` escribe en `src/systems/VirtualInput.ts` y
+`InputController` lo lee junto con el teclado, así que las escenas siguen preguntando
+`justAction()` y funcionan con las dos fuentes sin cambiar una línea.
+
+Dos detalles que no son obvios:
+
+- **Las pulsaciones se cuentan, no se guardan como un booleano.** Un booleano "recién apretado" se lo
+  come el primer lector y las demás escenas que miran el mismo frame se quedan sin él. Con un
+  contador, cada `InputController` recuerda cuántas vio y consume la suya. Es el mismo
+  comportamiento que `Phaser.Input.Keyboard.JustDown`, que también consume.
+- **`input.touch` se fuerza a `true` en `GameConfig.ts`.** Por defecto Phaser lo decide con su propio
+  sniffing de dispositivo, que no tiene por qué coincidir con el nuestro (`detectTouch()` mira
+  `pointer: coarse`). Si los dos no opinan lo mismo quedan controles en pantalla que no responden.
+
+Para probar los controles desde la computadora: `?touch=1` los fuerza y `?touch=0` los apaga.
+
+### Peso de la primera carga
+
+La primera visita baja **~40 MB** de assets. En escritorio no se nota; en datos móviles la barra de
+carga tarda. Si molesta, el camino más corto es convertir los PNG de personaje a WebP y bajar los
+MP3 de música, que son ~7 MB por pista y ya se cargan bajo demanda.
 
 ---
 

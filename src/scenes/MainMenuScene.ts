@@ -9,11 +9,25 @@ import { InputController } from '../systems/InputController';
 import { SaveSystem } from '../systems/SaveSystem';
 import { Menu } from '../ui/Menu';
 import type { RoomSceneData } from '../types';
+import { virtualInput } from '../systems/VirtualInput';
 
 /**
  * Pantalla de inicio. "Continue" solo se habilita si hay una partida guardada
  * en localStorage.
  */
+/**
+ * El cartel de controles cambia segun con que se este jugando.
+ *
+ * Es una funcion y no una constante de modulo a proposito: los imports se
+ * evaluan antes de que `main.ts` decida si hay tactil, asi que una constante
+ * quedaria siempre con el texto de teclado.
+ */
+function controlsHint(): string {
+  return virtualInput.enabled
+    ? 'Mover: pulgar izquierdo    Accion: tocar a la derecha    Pausa: boton de arriba'
+    : 'Mover: WASD / flechas    Accion: E o ESPACIO    Pausa: ESC';
+}
+
 export class MainMenuScene extends Phaser.Scene {
   private input$!: InputController;
   private menu!: Menu;
@@ -72,7 +86,7 @@ export class MainMenuScene extends Phaser.Scene {
     );
 
     this.add
-      .text(BASE_WIDTH / 2, BASE_HEIGHT - 46, 'Mover: WASD / flechas    Accion: E o ESPACIO    Pausa: ESC', {
+      .text(BASE_WIDTH / 2, BASE_HEIGHT - 46, controlsHint(), {
         fontFamily: FONT_FAMILY,
         fontSize: '11px',
         color: css(Palette.grey),
