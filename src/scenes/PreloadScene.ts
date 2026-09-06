@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
-import { DECOR, ITEMS, TILESETS } from '../config/AssetKeys';
+import { DECOR, ITEMS, TILESETS, TOUCH } from '../config/AssetKeys';
 import { BASE_HEIGHT, BASE_WIDTH } from '../config/GameConfig';
 import { FONT_FAMILY, Palette, css } from '../config/Palette';
 import { loadCharacterSheets, registerAnimations } from '../systems/AnimationFactory';
 import { audio } from '../systems/AudioSystem';
 import { createGeneratedTextures } from '../systems/TextureUtils';
+import { virtualInput } from '../systems/VirtualInput';
 import { prepareTilesetTextures } from '../systems/WangRoomBuilder';
 
 /**
@@ -30,6 +31,9 @@ export class PreloadScene extends Phaser.Scene {
     }
     for (const decor of Object.values(DECOR)) this.load.image(decor.key, decor.path);
     for (const item of Object.values(ITEMS)) this.load.image(item.key, item.path);
+    if (virtualInput.enabled) {
+      for (const btn of Object.values(TOUCH)) this.load.image(btn.key, btn.path);
+    }
 
     audio.preloadSfx(this);
   }
@@ -38,6 +42,11 @@ export class PreloadScene extends Phaser.Scene {
     createGeneratedTextures(this);
     prepareTilesetTextures(this);
     registerAnimations(this);
+
+    // Los controles tactiles corren aparte y no se detienen nunca: se lanzan
+    // recien aca para no taparle la barra de carga a la pantalla de preload.
+    if (virtualInput.enabled) this.scene.launch('Touch');
+
     this.scene.start('MainMenu');
   }
 

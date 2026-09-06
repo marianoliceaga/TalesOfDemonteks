@@ -123,6 +123,19 @@ export const MISC = {
   splash: { key: 'splash', path: `${A}splash.png` },
 } as const;
 
+/**
+ * Botones de los controles tactiles (PNG de 45x45).
+ *
+ * TODO(arte): no hay PNG para "volver"; TouchScene lo dibuja proceduralmente.
+ * Los btn_attack / btn_jump / btn_run que estan en Assets/UI/ no se usan: el
+ * juego no tiene salto ni carrera, y atacar se resuelve con el mismo boton de
+ * accion.
+ */
+export const TOUCH = {
+  action: { key: 'ui_btn_interact', path: `${A}ui/btn_interact.png` },
+  pause: { key: 'ui_btn_pause', path: `${A}ui/btn_pause.png` },
+} as const;
+
 /** Arte de la pantalla de final. */
 export const STORY = {
   endingBg: { key: 'ending_bg', path: `${A}story/ending_bg.png` },

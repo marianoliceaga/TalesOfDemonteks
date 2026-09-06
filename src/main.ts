@@ -9,6 +9,8 @@ import { HudScene } from './scenes/HudScene';
 import { PauseScene } from './scenes/PauseScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { EndingScene } from './scenes/EndingScene';
+import { TouchScene } from './scenes/TouchScene';
+import { detectTouch, virtualInput } from './systems/VirtualInput';
 
 /**
  * Punto de entrada.
@@ -28,9 +30,14 @@ const SCENES = [
   PauseScene,
   GameOverScene,
   EndingScene,
+  // Ultima: el orden de esta lista es el orden de dibujado, y los controles
+  // tactiles van encima de todo.
+  TouchScene,
 ];
 
 async function boot(): Promise<void> {
+  if (detectTouch()) virtualInput.enable();
+
   try {
     await Promise.race([
       document.fonts.load('16px "Press Start 2P"').then(() => document.fonts.ready),

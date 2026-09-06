@@ -77,6 +77,17 @@ export function createGameConfig(scenes: Phaser.Types.Scenes.SceneType[]): Phase
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    input: {
+      // Por defecto Phaser prende el tactil segun su propio sniffing de
+      // dispositivo, que no tiene por que coincidir con el nuestro (ver
+      // `detectTouch`). Si los dos no opinan lo mismo quedan controles en
+      // pantalla que no responden, asi que lo prendemos siempre: en una compu
+      // sin pantalla tactil no llega ningun evento y no molesta.
+      touch: true,
+      // Caminar y accionar al mismo tiempo necesita mas de un dedo. Tres deja
+      // margen para el pulgar que se apoya de mas.
+      activePointers: 3,
+    },
     physics: {
       default: 'arcade',
       arcade: {
